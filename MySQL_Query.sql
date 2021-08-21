@@ -1,3 +1,5 @@
+-- Create table query country wise
+
 CREATE TABLE <country_name>(
 	CustomerName VARCHAR(255) NOT NULL,
 	CustomerID VARCHAR(18) PRIMARY KEY,
