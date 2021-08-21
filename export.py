@@ -42,6 +42,7 @@ class Export:
         #query to create table
         createTableQuery = "CREATE TABLE " + tableName + "(CustomerName VARCHAR(255) NOT NULL,CustomerID VARCHAR(18) PRIMARY KEY, CustomerOpenDate DATE NOT NULL, LastConsultedDate DATE, VaccinatedType CHAR(5), DoctorConsulted CHAR(255), State CHAR(5), PostCode INT(5), DateOfBirth DATE, ActiveCustomer CHAR(1))"
         db_cursor.execute(createTableQuery)
+        db_cursor.close()
     
     def insert(self, attributes):
         """This method takes list object as an argument."""
@@ -63,10 +64,24 @@ class Export:
         
         #query to insert data to table
         tableName = attributes.pop(7)
+        
+        #removing new line character
         temp = attributes.pop(9)
         attributes.append(temp[0])
+        
+        #formatting date of birth
+        temp = attributes.pop(8)
+        date = temp[0:2]
+        month = temp[2:4]
+        year = temp[4:8]
+        temp = year + month + date
+        attributes.insert(8, temp)
+        
+        #query to insert data
         insertQuery = "INSERT INTO " + tableName + " VALUES (\""+ attributes[0] +"\", "+ attributes[1] +", "+ attributes[2] +", "+ attributes[3] +", \""+ attributes[4] +"\", \""+ attributes[5] +"\", \""+ attributes[6] +"\", "+ attributes[7] +", "+ attributes[8] +", \""+ attributes[9] +"\")"
         db_cursor.execute(insertQuery)
+        db_cursor.close()
+        connection.commit()
         
     
     def toDataBase(self):
@@ -94,4 +109,4 @@ class Export:
         return counter
             
 e1=Export("./../test.txt")
-print(e1.toDataBase())
+print(e1.toDataBase(), " rows inserted",)
