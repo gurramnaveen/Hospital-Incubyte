@@ -23,13 +23,16 @@ class Export:
         db_cursor = db_connection.cursor()
         
         #query to check if table exist
-        checkTableQuery = "SHOW TABLES LIKE " + tableName
-        db_cursor.execute(checkTableQuery)
-        
-        if(db_cursor.fetchone()):
+        checkTableQuery = "SELECT * FROM " + tableName
+        try:
+            db_cursor.execute(checkTableQuery)
+            db_cursor.fetchall()
+        except:
+            db_cursor.close()
             return True
-        else:
-            return False
+
+        db_cursor.close()
+        return False
         
     def createTable(self, db_connection, tableName):
         """This method takes two argument mysql connection and table name to be check and creates table."""
@@ -37,7 +40,7 @@ class Export:
         db_cursor = db_connection.cursor()
         
         #query to create table
-        createTableQuery = "CREATE TABLE " + tableName + "(CustomerName VARCHAR(255) NOT NULL,CustomerID VARCHAR(18) PRIMARY KEY,	CustomerOpenDate DATE NOT NULL,	LastConsultedDate DATE,	VaccinatedType CHAR(5),	DoctorConsulted CHAR(255),	State CHAR(5), PostCode INT(5), DateOfBirth DATE, ActiveCustomer CHAR(1))"
+        createTableQuery = "CREATE TABLE " + tableName + "(CustomerName VARCHAR(255) NOT NULL,CustomerID VARCHAR(18) PRIMARY KEY, CustomerOpenDate DATE NOT NULL, LastConsultedDate DATE, VaccinatedType CHAR(5), DoctorConsulted CHAR(255), State CHAR(5), PostCode INT(5), DateOfBirth DATE, ActiveCustomer CHAR(1))"
         db_cursor.execute(createTableQuery)
     
     def insert(self, attributes):
@@ -48,10 +51,11 @@ class Export:
             host = "localhost",
             user = "root",
             port = "3306",
-            database ="hospital")
+            database ="hospital",
+            password = "5127990209")
         
         #checking if Table exist in Database or not
-        if not self.checkTableExist(connection, attributes[7]):
+        if(self.checkTableExist(connection, attributes[7])):
             self.createTable(connection, attributes[7])
             
         #inserting data in the table
@@ -59,8 +63,10 @@ class Export:
         
         #query to insert data to table
         tableName = attributes.pop(7)
-        insertQuery = "INSERT INTO " + tableName + " VALUES (%s, %s, %s, %s, %s, %s, %s, %d, %s, %s)"
-        db_cursor.execute(insertQuery, attributes)
+        temp = attributes.pop(9)
+        attributes.append(temp[0])
+        insertQuery = "INSERT INTO " + tableName + " VALUES (\""+ attributes[0] +"\", "+ attributes[1] +", "+ attributes[2] +", "+ attributes[3] +", \""+ attributes[4] +"\", \""+ attributes[5] +"\", \""+ attributes[6] +"\", "+ attributes[7] +", "+ attributes[8] +", \""+ attributes[9] +"\")"
+        db_cursor.execute(insertQuery)
         
     
     def toDataBase(self):
@@ -84,6 +90,8 @@ class Export:
                 dataList.pop(0)
                 self.insert(dataList)
                 counter += 1
+
+        return counter
             
 e1=Export("./../test.txt")
-e1.toDataBase()
+print(e1.toDataBase())
