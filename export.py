@@ -31,7 +31,15 @@ class Export:
         else:
             return False
         
-     
+    def createTable(self, db_connection, tableName):
+        """This method takes two argument mysql connection and table name to be check and creates table."""
+        #create cusror to execute query
+        db_cursor = db_connection.cursor()
+        
+        #query to create table
+        createTableQuery = "CREATE TABLE " + tableName + "(CustomerName VARCHAR(255) NOT NULL,CustomerID VARCHAR(18) PRIMARY KEY,	CustomerOpenDate DATE NOT NULL,	LastConsultedDate DATE,	VaccinatedType CHAR(5),	DoctorConsulted CHAR(255),	State CHAR(5), PostCode INT(5), DateOfBirth DATE, ActiveCustomer CHAR(1))"
+        db_cursor.execute(createTableQuery)
+    
     def insert(self, attributes):
         """This method takes list object as an argument."""
         
@@ -46,7 +54,13 @@ class Export:
         if not self.checkTableExist(connection, attributes[7]):
             self.createTable(connection, attributes[7])
             
-        #inserting data in the
+        #inserting data in the table
+        db_cursor = connection.cursor()
+        
+        #query to insert data to table
+        tableName = attributes.pop(7)
+        insertQuery = "INSERT INTO " + tableName + " VALUES (%s, %s, %s, %s, %s, %s, %s, %d, %s, %s)"
+        db_cursor.execute(insertQuery, attributes)
         
     
     def toDataBase(self):
@@ -54,6 +68,7 @@ class Export:
         But returns number of rows inserted.
         It's purpose is to insert the data to database"""
         
+        counter = 0
         #returns if file Object is null
         if(self.fileObj == ""): return
         
@@ -68,6 +83,7 @@ class Export:
                 #removing metadata showing Details Record Layout
                 dataList.pop(0)
                 self.insert(dataList)
+                counter += 1
             
 e1=Export("./../test.txt")
 e1.toDataBase()
