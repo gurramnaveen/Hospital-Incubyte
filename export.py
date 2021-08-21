@@ -15,7 +15,7 @@ class Export:
         except:
             print("File Not Found!")
     
-    def checkTableExist(self, db_connection, tableName):
+    def checkTableNotExist(self, db_connection, tableName):
         """This method takes two argument mysql connection and table name to be check.
         If table exist in Database it returns true else false."""
         
@@ -55,7 +55,7 @@ class Export:
             password = "5127990209")
         
         #checking if Table exist in Database or not
-        if(self.checkTableExist(connection, attributes[7])):
+        if(self.checkTableNotExist(connection, attributes[7])):
             self.createTable(connection, attributes[7])
             
         #inserting data in the table
