@@ -6,11 +6,6 @@ Created on Sat Aug 21 19:04:18 2021
 """
 
 import mysql.connector
-connection = mysql.connector.connect(
-    host = "localhost"
-    user = "root"
-    port = "3306"
-    database ="hospital")
 
 class Export:
     def __init__(self, filePath):
@@ -20,19 +15,57 @@ class Export:
         except:
             print("File Not Found!")
     
+    def checkTableExist(self, db_connection, tableName):
+        """This method takes two argument mysql connection and table name to be check.
+        If table exist in Database it returns true else false."""
+        
+        #creating cursor to execute query
+        db_cursor = db_connection.cursor()
+        
+        #query to check if table exist
+        checkTableQuery = "SHOW TABLES LIKE " + tableName
+        db_cursor.execute(checkTableQuery)
+        
+        if(db_cursor.fetchone()):
+            return True
+        else:
+            return False
+        
+     
     def insert(self, attributes):
-        self.checkTableExist()
+        """This method takes list object as an argument."""
+        
+        #establishing connection with hospital database
+        connection = mysql.connector.connect(
+            host = "localhost",
+            user = "root",
+            port = "3306",
+            database ="hospital")
+        
+        #checking if Table exist in Database or not
+        if not self.checkTableExist(connection, attributes[7]):
+            self.createTable(connection, attributes[7])
+            
+        #inserting data in the
         
     
     def toDataBase(self):
         """This method doesn't take any argument.
         But returns number of rows inserted.
         It's purpose is to insert the data to database"""
+        
+        #returns if file Object is null
         if(self.fileObj == ""): return
+        
+        #reading data row by row and inserting in database
         for line in self.fileObj:
+            
+            #converting pipe delimeted row to list
             dataList=line.split('|')
             dataList.pop(0)
             if(dataList[0] == 'D'):
+                
+                #removing metadata showing Details Record Layout
                 dataList.pop(0)
                 self.insert(dataList)
             
