@@ -23,7 +23,7 @@ class Export:
         db_cursor = db_connection.cursor()
         
         #query to check if table exist
-        checkTableQuery = "SELECT * FROM " + tableName
+        checkTableQuery = "SHOW TABLES LIKE \'" + tableName + "\'"
         try:
             db_cursor.execute(checkTableQuery)
             db_cursor.fetchall()
@@ -37,12 +37,15 @@ class Export:
     def createTable(self, db_connection, tableName):
         """This method takes two argument mysql connection and table name to be check and creates table."""
         #create cusror to execute query
+        if(tableName == ""):
+            return 0
         db_cursor = db_connection.cursor()
         
         #query to create table
         createTableQuery = "CREATE TABLE " + tableName + "(CustomerName VARCHAR(255) NOT NULL,CustomerID VARCHAR(18) PRIMARY KEY, CustomerOpenDate DATE NOT NULL, LastConsultedDate DATE, VaccinatedType CHAR(5), DoctorConsulted CHAR(255), State CHAR(5), PostCode INT(5), DateOfBirth DATE, ActiveCustomer CHAR(1))"
         db_cursor.execute(createTableQuery)
         db_cursor.close()
+        return 1
     
     def insert(self, attributes):
         """This method takes list object as an argument."""
@@ -52,13 +55,15 @@ class Export:
             host = "localhost",
             user = "root",
             port = "3306",
-            database ="hospital",
+            database ="test1",
             password = "5127990209")
         
         #checking if Table exist in Database or not
         if(self.checkTableNotExist(connection, attributes[7])):
-            self.createTable(connection, attributes[7])
-            
+            tableNameIsEmpty=self.createTable(connection, attributes[7])
+
+        if(tableNameIsEmpty == 0):
+            return
         #inserting data in the table
         db_cursor = connection.cursor()
         
